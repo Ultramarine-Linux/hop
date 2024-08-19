@@ -12,3 +12,4 @@ bin           = @["umswitch"]
 
 requires "nim >= 2.0.0"
 requires "owlkettle >= 3.0.0"
+requires "fungus"
