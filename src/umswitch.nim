@@ -1,13 +1,12 @@
-import std/options
-import std/[os, osproc, sugar]
-import strutils, strformat
 import owlkettle, owlkettle/adw
 import app
-import pages/[action]
+import pages/[action, add, delete, changeEdition]
 
 const
   logfilepath: string = "/tmp/umswitch.log"
   debug = 1
+let
+  stylesheets: array[1, StyleSheet] = [loadStylesheet("style.css")]
 
 method view(app: AppState): Widget =
   result = gui:
@@ -17,15 +16,18 @@ method view(app: AppState): Widget =
         AdwHeaderBar {.expand: false.}:
           style = HeaderBarFlat
 
-        case app.page_index
-        of 0: ActionPage()
+        case app.page
+        of "action": ActionPage()
+        of "add": AddPage()
+        of "delete": DeletePage()
+        of "changeEdition": ChangeEditionPage()
         else: discard
 
 proc main =
   logfilepath.writeFile "" # creates the logfile
   let logfile = open(logfilepath, fmWrite)
   defer: logfile.close()
-  adw.brew gui App()
+  adw.brew(gui App(), stylesheets=stylesheets)
 
 when isMainModule and debug == 0:
   if os.isAdmin():

@@ -1,6 +1,6 @@
 import owlkettle
 
 viewable App:
-  page_index: int = 0
+  page: string = "action"
 
 export App, AppState
