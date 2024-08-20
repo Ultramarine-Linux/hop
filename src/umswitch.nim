@@ -1,12 +1,12 @@
 import owlkettle, owlkettle/adw
 import app
-import pages/[action, add, delete, changeEdition]
+import pages/[action, add, delete, changeEdition, zNotFound]
 
 const
   logfilepath: string = "/tmp/umswitch.log"
   debug = 1
 let
-  stylesheets: array[1, StyleSheet] = [loadStylesheet("style.css")]
+  stylesheets: array[1, StyleSheet] = [loadStylesheet("src/style.css")]
 
 method view(app: AppState): Widget =
   result = gui:
@@ -17,11 +17,11 @@ method view(app: AppState): Widget =
           style = HeaderBarFlat
 
         case app.page
-        of "action": ActionPage()
-        of "add": AddPage()
-        of "delete": DeletePage()
-        of "changeEdition": ChangeEditionPage()
-        else: discard
+        of "action": ActionPage(rootapp = app)
+        of "add": AddPage(rootapp = app)
+        of "delete": DeletePage(rootapp = app)
+        of "changeEdition": ChangeEditionPage(rootapp = app)
+        else: NotFoundPage(rootapp = app)
 
 proc main =
   logfilepath.writeFile "" # creates the logfile
