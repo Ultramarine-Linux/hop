@@ -5,4 +5,4 @@ viewable App:
   page: string = "action"
   cfgs: Table[string, string]
 
-export App, AppState
+export App, AppState, tables

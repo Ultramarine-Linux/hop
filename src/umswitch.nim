@@ -1,6 +1,6 @@
 import owlkettle, owlkettle/adw
 import app
-import pages/[action, add, delete, changeEdition, zNotFound]
+import pages/[action, add, delete, deleteReboot, changeEdition, zNotFound, zError]
 
 const
   logfilepath: string = "/tmp/umswitch.log"
@@ -20,7 +20,9 @@ method view(app: AppState): Widget =
         of "action": ActionPage(rootapp = app)
         of "add": AddPage(rootapp = app) 
         of "delete": DeletePage(rootapp = app)
+        of "deleteReboot": DeleteRebootPage(rootapp = app)
         of "changeEdition": ChangeEditionPage(rootapp = app)
+        of "zError": ErrorPage(rootapp = app)
         else: NotFoundPage(rootapp = app)
 
 proc main =

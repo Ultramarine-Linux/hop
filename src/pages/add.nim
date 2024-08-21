@@ -15,18 +15,17 @@ method view(state: AddPageState): Widget = gui:
       iconName = "fedora-logo-icon"
       title = "Ultramarine Hop"
       description = "Choose a desktop environment to add:"
-      Box(orient = OrientY):
-        FlowBox(margin = 12, rowSpacing = 8, columnSpacing = 8):
-          columns = 1..2
-          for (name, pkg) in pkgs.editions.pairs:
-            Button(text = name):
-              if installed_desktops.contains pkg:
-                sensitive = false
-                tooltip = installed_tooltip_msg
-              proc clicked = state.rootapp.cfgs["add-de"] = name
-              if state.rootapp.cfgs.getOrDefault("add-de") == name:
-                style = [ButtonSuggested]
-              else: style = []
+      FlowBox(margin = 12, rowSpacing = 8, columnSpacing = 8):
+        columns = 1..2
+        for (name, pkg) in pkgs.editions.pairs:
+          Button(text = name):
+            if installed_desktops.contains pkg:
+              sensitive = false
+              tooltip = installed_tooltip_msg
+            proc clicked = state.rootapp.cfgs["add-de"] = name
+            if state.rootapp.cfgs.getOrDefault("add-de") == name:
+              style = [ButtonSuggested]
+            else: style = []
     Box() {.expand: true.}
     Box(orient = OrientX) {.expand: false, vAlign: AlignEnd.}:
       Box() {.expand: true.}

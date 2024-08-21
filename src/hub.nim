@@ -1,9 +1,10 @@
 import fungus
 
 adtEnum MsgToMain:
-  Test1
+  UpdateState: string
+  DnfError: string
 adtEnum MsgToThrd:
-  Test2
+  DeleteRebootDE: string
 
 type Hub* = object
   toMain*: Channel[MsgToMain]
