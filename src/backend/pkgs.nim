@@ -28,7 +28,7 @@ proc ensure_dnf5*(): Result[void, string] =
   if rc != 0:
     echo "Failed to install dnf5; process returned exit code " & $rc
     return err fmt"Fail to install dnf5 ({rc=})"
-  result.ok()
+  ok()
 
 proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
   hub.toMain.send UpdateState.init("Rebooting...")

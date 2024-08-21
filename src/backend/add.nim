@@ -62,5 +62,5 @@ proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} 
   let process = startProcess("dnf5", args=args, options = {poStdErrToStdOut})
 
   track_dnf5_download_progress(process, progress => hub.toMain.send Progress.init progress)
-  end_proc(process, "Downloading Packages", "arrange offline DE install")
+  ?end_proc(process, "Downloading Packages", "arrange offline DE install")
   hub.toMain.send DownloadFinish.init
