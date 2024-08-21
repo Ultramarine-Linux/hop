@@ -1,5 +1,6 @@
 import results
-import std/[osproc, strutils, strformat, sugar, tables, sequtils]
+import std/[os, osproc, strutils, strformat, sugar, tables, sequtils, streams, options, times]
+import ../hub
 
 const editions*: Table[string, string] = {
   "Budgie": "budgie-desktop",
@@ -29,6 +30,45 @@ proc ensure_dnf5*(): Result[void, string] =
     echo "Failed to install dnf5; process returned exit code " & $rc
     return err fmt"Fail to install dnf5 ({rc=})"
   ok()
+
+proc track_dnf5_download_progress*(process: Process, hub: Option[ref Hub]) {.thread.} =
+  let outs = process.outputStream
+  var line = ""
+
+  while process.running:
+    if outs.at_end:
+      sleep(20)
+    while not outs.at_end:
+      let c = $outs.read_char
+      if c == "\n":
+        stdout.write "\n┊ "
+        line = ""
+      else:
+        stdout.write c
+        line = line & c
+        if hub.is_some:
+          if line.endsWith ']':
+            try:
+              let middle = line.find('/')
+              if middle <= 0:
+                continue
+              let denominator = line[1..middle-1].parseInt
+              let divisor = line[middle+1..^2].parseInt
+              if denominator > 0 and divisor > 0:
+                hub.get.toMain.send Progress.init denominator/divisor
+            except: discard
+
+proc end_proc*(process: Process, startTime: DateTime, action: string, errAction: string = ""): Result[void, string] {.thread.} =
+  defer: process.close()
+  let errAction = if errAction == "": action else: errAction
+  let rc = process.peekExitCode
+  echo "\n│"
+  echo fmt"├═ Return code: {rc}"
+  echo fmt"├═ Time taken: {now() - startTime}"
+  echo fmt"└──── END OF {action} ─────"
+  if rc != 0:
+    echo "Error: cannot " & errAction
+    return err fmt"Fail to {errAction} ({rc=})"
 
 proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
   hub.toMain.send UpdateState.init("Rebooting...")

@@ -1,5 +1,5 @@
 import results
-import std/[os, osproc, streams, strutils, strformat, times, tables, sugar]
+import std/[osproc, strutils, strformat, times, tables, options]
 import pkgs
 import ../hub
 
@@ -21,6 +21,6 @@ proc remove_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread
   var args = @["rm", "-y", "--offline"]
   args &= pkgs
   let process = startProcess("dnf5", args=args, options = {poStdErrToStdOut})
-  track_dnf5_download_progress(process, x => discard x)
-  ?end_proc(process, "Remove DE Offline", "arrange offline DE remove")
+  track_dnf5_download_progress(process, none(ref Hub))
+  ?end_proc(process, time, "Remove DE Offline", "arrange offline DE remove")
   ?reboot_apply_offline hub
