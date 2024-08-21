@@ -18,7 +18,7 @@ method view(app: AppState): Widget =
 
         case app.page
         of "action": ActionPage(rootapp = app)
-        of "add": AddPage(rootapp = app)
+        of "add": AddPage(rootapp = app) 
         of "delete": DeletePage(rootapp = app)
         of "changeEdition": ChangeEditionPage(rootapp = app)
         else: NotFoundPage(rootapp = app)
