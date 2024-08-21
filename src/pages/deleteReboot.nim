@@ -15,10 +15,12 @@ viewable DeleteRebootPage:
 
 proc setupThread(hub: ref Hub): Thread[ref Hub] =
   proc th(hub: ref Hub) {.thread, nimcall.} =
-    let de = match hub[].toThrd.recv:
+    let msg = hub[].toThrd.recv
+    let de = match msg:
     of DeleteRebootDE as inner_de: inner_de
     else:
       echo "BUG: expected DeleteRebootDE!!!"
+      echo "BUG: found " & $msg
       return
     let res = remove_de_offline(hub, de)
     if res.isErr:
