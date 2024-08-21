@@ -14,6 +14,7 @@ viewable DeleteRebootPage:
 
 
 proc setupThread(hub: ref Hub): Thread[ref Hub] =
+  assert hub[].toThrd.peek > 0
   proc th(hub: ref Hub) {.thread, nimcall.} =
     let msg = hub[].toThrd.recv
     let de = match msg:

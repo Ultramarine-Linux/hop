@@ -29,3 +29,13 @@ proc ensure_dnf5*(): Result[void, string] =
     echo "Failed to install dnf5; process returned exit code " & $rc
     return err fmt"Fail to install dnf5 ({rc=})"
   result.ok()
+
+proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
+  hub.toMain.send UpdateState.init("Rebooting...")
+  let rc = execCmd("dnf5 offline reboot -y")
+  if rc != 0:
+    echo "Fail to run offline reboot, rc: " & $rc
+    return err fmt"Fail to run offline reboot ({rc=})"
+  hub.toMain.send UpdateState.init("Reboot command finished. If your computer isn't rebooting, this is a bug.\nApp will force-quit in 10 seconds.")
+  sleep 10000
+  quit(0)

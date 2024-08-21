@@ -3,6 +3,8 @@ import fungus
 adtEnum MsgToMain:
   UpdateState: string
   DnfError: string
+  Progress: float
+  DownloadFinish
 adtEnum MsgToThrd:
   DeleteRebootDE: string
 
