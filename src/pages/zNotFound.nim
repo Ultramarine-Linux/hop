@@ -1,3 +1,4 @@
+import std/strformat
 import owlkettle
 import owlkettle/adw
 import ../app
@@ -9,7 +10,7 @@ method view(state: NotFoundPageState): Widget = gui:
   StatusPage:
     iconName = "gtk-close"
     title = "Sorry! Something went wrong!"
-    description = "Technical Details: z-not-found: " & state.rootapp.page
+    description = fmt"Technical Details: z-not-found: {state.rootapp.page}\n\n{state.rootapp.cfgs=}"
     style = [StyleClass("compact")]
 
 export NotFoundPage, NotFoundPageState

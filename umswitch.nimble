@@ -11,6 +11,6 @@ bin           = @["umswitch"]
 # Dependencies
 
 requires "nim >= 2.0.0"
-requires "owlkettle >= 3.0.0"
+requires "https://github.com/can-lehmann/owlkettle#HEAD"
 requires "fungus"
 requires "results"

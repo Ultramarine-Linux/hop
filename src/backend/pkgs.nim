@@ -79,3 +79,13 @@ proc reboot_apply_offline*(hub: ref Hub): Result[void, string] =
   hub.toMain.send UpdateState.init("Reboot command finished. If your computer isn't rebooting, this is a bug.\nApp will force-quit in 10 seconds.")
   sleep 10000
   quit(0)
+
+proc get_releasever(): int =
+  let f = open("/etc/os-release")
+  defer: f.close()
+  for l in f.lines:
+    if l.starts_with("VERSION_ID="):
+      return l[11..12].parseInt
+  quit("cannot find VERSION_ID in /etc/os-release")
+
+let releasever* = get_releasever()
