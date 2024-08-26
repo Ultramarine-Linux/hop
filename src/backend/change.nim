@@ -1,5 +1,5 @@
 import results
-import std/[osproc, tables, strutils, options]
+import std/[times, osproc, tables, strutils, strformat, options]
 import pkgs
 import ../hub
 
@@ -11,11 +11,12 @@ let de_to_pkgs_to_change*: Table[string, string] = {
 }.toTable
 
 proc detect_swap_from*(): Result[string, string] =
-  result = strip execProcess("rpm -qa 'ultramarine-release-identity-*'")
-  if result.len == 0:
+  let res = strip execProcess("rpm -qa 'ultramarine-release-identity-*'")
+  if res.len == 0:
     return err "Cannot detect current release edition"
+  ok res
 
-proc swap*(hub: ref Hub, to: string): Result[void, string] =
+proc swap*(hub: ref Hub, to: string): Result[void, string] {.thread.} =
   ?ensure_dnf5()
   hub.toMain.send UpdateState.init "Swapping packages using dnf5..."
   echo fmt"┌──── BEGIN: Swap Editions ─────"

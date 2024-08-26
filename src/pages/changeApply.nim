@@ -3,7 +3,7 @@ import fungus
 import owlkettle
 import owlkettle/adw
 import ../[app, hub]
-import ../backend/pkgs
+import ../backend/change
 
 viewable ChangeApplyPage:
   rootapp: AppState
@@ -11,7 +11,7 @@ viewable ChangeApplyPage:
   hub: ref Hub
   first: bool = true
   th: ref Thread[ref Hub]
-  prog: float = 0.0
+  progress: float = 0.0
 
 
 proc setupThread(hub: ref Hub): Thread[ref Hub] =
