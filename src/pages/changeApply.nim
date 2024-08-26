@@ -11,19 +11,20 @@ viewable ChangeApplyPage:
   hub: ref Hub
   first: bool = true
   th: ref Thread[ref Hub]
+  prog: float = 0.0
 
 
 proc setupThread(hub: ref Hub): Thread[ref Hub] =
   assert hub[].toThrd.peek > 0
   proc th(hub: ref Hub) {.thread, nimcall.} =
     let msg = hub[].toThrd.recv
-    let de = match msg:
-    of DeleteRebootDE as inner_de: inner_de
+    let edition = match msg:
+    of ChangeEdition as edition: edition
     else:
-      echo "BUG: expected DeleteRebootDE!!!"
+      echo "BUG: expected ChangeEdition!!!"
       echo "BUG: found " & $msg
       return
-    let res = remove_de_offline(hub, de)
+    let res = swap(hub, edition)
     if res.isErr:
       hub.toMain.send DnfError.init res.error
   createThread(result, th, hub)
@@ -33,7 +34,7 @@ method view(state: ChangeApplyPageState): Widget =
   if state.first:
     open state.hub[].toMain
     open state.hub[].toThrd
-    state.hub[].toThrd.send DeleteRebootDE.init state.rootapp.cfgs["rm-de"]
+    state.hub[].toThrd.send ChangeEdition.init state.rootapp.cfgs["change-edition"]
     state.th[] = setupThread(state.hub)
   while state.hub[].toMain.peek > 0:
     let msg = state.hub[].toMain.recv
@@ -43,15 +44,17 @@ method view(state: ChangeApplyPageState): Widget =
     of DnfError as err:
       state.rootapp.cfgs["error"] = err
       state.rootapp.page = "zError"
+    of Progress as prog:
+      state.progress = prog
     else:
       echo "BUG: unexpected message: " & $msg
   gui:
     StatusPage:
       iconName = "fedora-logo-icon"
-      title = "Erasing " & state.rootapp.cfgs["rm-de"]
-      description = "The system reboot will happen shortly..."
-      Box(orient = OrientX):
-        Spinner(spinning = true)
+      title = "Switching to " & state.rootapp.cfgs["change-edition"] & " Edition"
+      description = "This will take around 5 minutes."
+      Box(orient = OrientY):
         Label(text = state.text)
+        ProgressBar(fraction = state.progress)
 
 export ChangeApplyPage

@@ -19,8 +19,8 @@ method view(state: ChangePageState): Widget = gui:
           columns = 1..2
           for (name, pkg) in pkgs.editions.pairs:
             Button(text = name):
-              proc clicked = state.rootapp.cfgs["change-de"] = name
-              if state.rootapp.cfgs.getOrDefault("change-de") == name:
+              proc clicked = state.rootapp.cfgs["change-edition"] = name
+              if state.rootapp.cfgs.getOrDefault("change-edition") == name:
                 style = [ButtonSuggested]
               else: style = []
               if installed_desktops.contains pkg:
@@ -31,7 +31,7 @@ method view(state: ChangePageState): Widget = gui:
       Box() {.expand: true.}
       Button(text = "Confirm") {.expand: false, hAlign: AlignEnd.}:
         sensitive = false
-        if state.rootapp.cfgs.contains "change-de":
+        if state.rootapp.cfgs.contains "change-edition":
           style = [ButtonSuggested]
           sensitive = true
           proc clicked =
@@ -39,7 +39,7 @@ method view(state: ChangePageState): Widget = gui:
               MessageDialog:
                 # TODO: when adding i18n support, use `%s`.
                 message = dedent fmt"""
-                  Are you sure you would like to change to {state.rootapp.cfgs["change-de"]}? This will not remove your existing environment.
+                  Are you sure you would like to change to {state.rootapp.cfgs["change-edition"]}? This will not remove your existing environment.
                   You may remove one later by running this app again after reboot.
                   
                   Click 'Continue' to swap.
