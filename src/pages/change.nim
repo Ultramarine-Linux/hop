@@ -4,10 +4,10 @@ import owlkettle/adw
 import ../app
 import ../backend/pkgs
 
-viewable ChangeEditionPage:
+viewable ChangePage:
   rootapp: AppState
 
-method view(state: ChangeEditionPageState): Widget = gui:
+method view(state: ChangePageState): Widget = gui:
   Box(orient = OrientY, spacing = 16, margin = 16):
     StatusPage:
       iconName = "fedora-logo-icon"
@@ -53,4 +53,4 @@ method view(state: ChangeEditionPageState): Widget = gui:
                   style = [ButtonDestructive]
             if res.kind == DialogAccept:
               state.rootapp.page = "changeApply"
-export ChangeEditionPage, ChangeEditionPageState
+export ChangePage

@@ -34,6 +34,7 @@ proc ensure_dnf5*(): Result[void, string] =
 proc track_dnf5_download_progress*(process: Process, hub: Option[ref Hub]) {.thread.} =
   let outs = process.outputStream
   var line = ""
+  var progress = 0.0
 
   while process.running:
     if outs.at_end:
@@ -55,7 +56,10 @@ proc track_dnf5_download_progress*(process: Process, hub: Option[ref Hub]) {.thr
               let denominator = line[1..middle-1].parseInt
               let divisor = line[middle+1..^2].parseInt
               if denominator > 0 and divisor > 0:
-                hub.get.toMain.send Progress.init denominator/divisor
+                if denominator/divisor < progress:
+                  hub.get.toMain.send UpdateState.init "Applying transaction..."
+                progress = denominator/divisor
+                hub.get.toMain.send Progress.init progress
             except: discard
 
 proc end_proc*(process: Process, startTime: DateTime, action: string, errAction: string = ""): Result[void, string] {.thread.} =

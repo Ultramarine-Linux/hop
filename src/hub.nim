@@ -7,6 +7,7 @@ adtEnum MsgToMain:
   DownloadFinish
 adtEnum MsgToThrd:
   DeleteRebootDE: string
+  ChangeEdition: string
 
 type Hub* = object
   toMain*: Channel[MsgToMain]

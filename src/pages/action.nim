@@ -33,6 +33,6 @@ method view(state: ActionPageState): Widget = gui:
           iconName = "home"
           title = "Change Edition"
           style = [StyleClass("compact")]
-        proc clicked = state.rootapp.page = "changeEdition"
+        proc clicked = state.rootapp.page = "change"
 
 export ActionPage, ActionPageState
