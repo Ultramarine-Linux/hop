@@ -84,12 +84,17 @@ proc reboot_apply_offline*(hub: ref Hub): Result[void, string] =
   sleep 10000
   quit(0)
 
-proc get_releasever(): int =
-  let f = open("/etc/os-release")
-  defer: f.close()
-  for l in f.lines:
-    if l.starts_with("VERSION_ID="):
-      return l[11..12].parseInt
-  quit("cannot find VERSION_ID in /etc/os-release")
+const releasever* {.intdefine.}: int = 0
 
-let releasever* = get_releasever()
+when releasever == 0:
+  import std/macros
+  macro x = error "Compiling this requires --define:releasever=..."
+  x()
+
+#proc get_releasever(): int =
+#  let f = open("/etc/os-release")
+#  defer: f.close()
+#  for l in f.lines:
+#    if l.starts_with("VERSION_ID="):
+#      return l[11..12].parseInt
+#  quit("cannot find VERSION_ID in /etc/os-release")
