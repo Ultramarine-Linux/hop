@@ -52,6 +52,6 @@ method view(state: AddPageState): Widget = gui:
                   res = DialogAccept
                   style = [ButtonDestructive]
             if res.kind == DialogAccept:
-              state.rootapp.page = "download"
+              state.rootapp.page = "addDownload"
 
 export AddPage, AddPageState

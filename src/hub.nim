@@ -8,6 +8,8 @@ adtEnum MsgToMain:
 adtEnum MsgToThrd:
   DeleteRebootDE: string
   ChangeEdition: string
+  AddDE: string
+  Reboot
 
 type Hub* = object
   toMain*: Channel[MsgToMain]

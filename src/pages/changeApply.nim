@@ -46,6 +46,9 @@ method view(state: ChangeApplyPageState): Widget =
       state.rootapp.page = "zError"
     of Progress as prog:
       state.progress = prog
+    of DownloadFinish:
+      state.progress = 1
+      state.text = "The operation was successful. You may now close the app."
     else:
       echo "BUG: unexpected message: " & $msg
   gui:

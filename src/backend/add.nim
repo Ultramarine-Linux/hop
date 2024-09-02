@@ -1,5 +1,5 @@
 import results
-import std/[os, osproc, streams, strutils, strformat, times, tables, sugar, options]
+import std/[osproc, strutils, strformat, times, tables, options]
 import pkgs
 import ../hub
 
@@ -23,4 +23,4 @@ proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} 
   let process = startProcess("dnf5", args=args, options = {poStdErrToStdOut})
   track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Downloading Packages", "arrange offline DE install")
-  hub.toMain.send DownloadFinish.init
+  hub.toMain.send MsgToMain DownloadFinish.init
