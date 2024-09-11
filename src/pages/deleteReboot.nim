@@ -31,6 +31,7 @@ proc setupThread(hub: ref Hub): Thread[ref Hub] =
 
 method view(state: DeleteRebootPageState): Widget =
   if state.first:
+    new state.hub
     open state.hub[].toMain
     open state.hub[].toThrd
     state.hub[].toThrd.send DeleteRebootDE.init state.rootapp.cfgs["rm-de"]

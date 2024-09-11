@@ -12,6 +12,7 @@ const de_to_pkgs_to_add: Table[string, seq[string]] = {
 
 proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} =
   ?ensure_dnf5()
+  echo "Downloading packages..."
   hub.toMain.send UpdateState.init "Downloading packages..."
   echo fmt"┌──── BEGIN: Downloading packages ─────"
   let pkgs = de_to_pkgs_to_add[de]

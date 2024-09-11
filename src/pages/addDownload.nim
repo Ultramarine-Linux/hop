@@ -11,40 +11,42 @@ viewable AddDownloadPage:
   text: string = "Making sure dnf5 exists..."
   hub: ref Hub
   first: bool = true
-  th: ref Thread[ref Hub]
   progress: float = 0.0
 
+var thread: Thread[AddDownloadPageState]
 
-proc setupThread(hub: ref Hub): Thread[ref Hub] =
-  assert hub[].toThrd.peek > 0
-  proc th(hub: ref Hub) {.thread, nimcall.} =
+proc setupThread(state: AddDownloadPageState) =
+  assert state.hub[].toThrd.peek > 0
+  proc th(state: AddDownloadPageState) {.thread.} =
+    echo "Thread running"
     while true:
-      if hub[].toThrd.peek == 0:
+      if state.hub[].toThrd.peek == 0:
         continue
-      let msg = hub[].toThrd.recv
+      let msg = state.hub[].toThrd.recv
       let edition = match msg:
       of AddDE as de: de
       of Reboot:
-        let res = reboot_apply_offline hub
+        let res = reboot_apply_offline state.hub
         if res.isErr:
-          hub.toMain.send DnfError.init res.error
+          state.hub.toMain.send DnfError.init res.error
         continue
       else:
         echo "BUG: expected AddDE!!!"
         echo "BUG: found " & $msg
         return
-      let res = add_de_offline(hub, edition)
+      let res = add_de_offline(state.hub, edition)
       if res.isErr:
-        hub.toMain.send DnfError.init res.error
-  createThread(result, th, hub)
+        state.hub.toMain.send DnfError.init res.error
+  createThread(thread, th, state)
 
 
 method view(state: AddDownloadPageState): Widget =
   if state.first:
+    new state.hub
     open state.hub[].toMain
     open state.hub[].toThrd
-    state.hub[].toThrd.send ChangeEdition.init state.rootapp.cfgs["add-de"]
-    state.th[] = setupThread(state.hub)
+    state.hub[].toThrd.send AddDE.init state.rootapp.cfgs["add-de"]
+    setupThread(state)
   while state.hub[].toMain.peek > 0:
     let msg = state.hub[].toMain.recv
     match msg:

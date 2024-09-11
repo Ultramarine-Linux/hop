@@ -32,6 +32,7 @@ proc setupThread(hub: ref Hub): Thread[ref Hub] =
 
 method view(state: ChangeApplyPageState): Widget =
   if state.first:
+    new state.hub
     open state.hub[].toMain
     open state.hub[].toThrd
     state.hub[].toThrd.send ChangeEdition.init state.rootapp.cfgs["change-edition"]

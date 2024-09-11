@@ -23,7 +23,9 @@ echo installed_desktops
 
 proc ensure_dnf5*(): Result[void, string] =
   if package_installed(["dnf5"]).len != 0:
+    echo "dnf5 is installed"
     return
+  echo "Ensuring dnf5"
   echo "dnf5 is not installed; installing right now…"
   let rc = execCmd("dnf4 in -y dnf5")
   if rc != 0:
@@ -75,6 +77,7 @@ proc end_proc*(process: Process, startTime: DateTime, action: string, errAction:
     return err fmt"Fail to {errAction} ({rc=})"
 
 proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
+  echo "reboot_apply_offline()"
   hub.toMain.send UpdateState.init("Rebooting...")
   let rc = execCmd("dnf5 offline reboot -y")
   if rc != 0:
@@ -90,11 +93,3 @@ when releasever == 0:
   import std/macros
   macro x = error "Compiling this requires --define:releasever=..."
   x()
-
-#proc get_releasever(): int =
-#  let f = open("/etc/os-release")
-#  defer: f.close()
-#  for l in f.lines:
-#    if l.starts_with("VERSION_ID="):
-#      return l[11..12].parseInt
-#  quit("cannot find VERSION_ID in /etc/os-release")

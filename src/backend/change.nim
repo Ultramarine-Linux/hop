@@ -18,6 +18,7 @@ proc detect_swap_from*(): Result[string, string] =
 
 proc swap*(hub: ref Hub, to: string): Result[void, string] {.thread.} =
   ?ensure_dnf5()
+  echo "Swapping packages..."
   hub.toMain.send UpdateState.init "Swapping packages using dnf5..."
   echo fmt"┌──── BEGIN: Swap Editions ─────"
   let old = ?detect_swap_from()
