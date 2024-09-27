@@ -24,7 +24,7 @@ method view(state: ActionPageState): Widget = gui:
           iconName = "delete"
           title = "Remove DE"
           style = [StyleClass("compact")]
-        if installed_desktops.len == 1:
+        if state.rootapp.installed_desktops.len == 1:
           sensitive = false
           tooltip = "You cannot remove any more desktops because you have only 1 installed."
         proc clicked = state.rootapp.page = "delete"

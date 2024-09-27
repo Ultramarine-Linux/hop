@@ -2,29 +2,41 @@ import results
 import std/[os, osproc, strutils, strformat, sugar, tables, sequtils, streams, options, times]
 import ../hub
 
+const releasever* {.intdefine.}: int = 0
+
+when releasever == 0:
+  import std/macros
+  macro x = error "Compiling this requires --define:releasever=..."
+  x()
+
+
 const editions*: Table[string, string] = {
-  "Budgie": "budgie-desktop",
-  "GNOME": "gnome-desktop",
-  "KDE Plasma": "plasma-desktop",
-  "XFCE": "xfwm4",
+  "Budgie": "ultramarine-release-flagship",
+  "GNOME": "ultramarine-release-gnome",
+  "KDE Plasma": if releasever < 41: "ultramarine-release-kde" else: "ultramarine-release-plasma",
+  "XFCE": "ultramarine-release-xfce",
+}.toTable
+
+const identities*: Table[string, string] = {
+  "Budgie": "ultramarine-release-identity-flagship",
+  "GNOME": "ultramarine-release-identity-gnome",
+  "KDE Plasma": if releasever < 41: "ultramarine-release-identity-kde" else: "ultramarine-release-identity-plasma",
+  "XFCE": "ultramarine-release-identity-xfce",
 }.toTable
 
 proc package_installed*(pkgs: openArray[string]): seq[string] =
+  echo "package_installed(): " & $pkgs
   let stdout = execProcess("rpm -qa "&pkgs.join(" "))
   collect:
     for line in stdout.splitLines:
+      echo "> " & line
       for pkg in pkgs:
         if line.starts_with(pkg): pkg
-
-
-echo "Checking for installed desktops..."
-let installed_desktops* = package_installed(editions.values.toSeq)
-echo installed_desktops
 
 proc ensure_dnf5*(): Result[void, string] =
   if package_installed(["dnf5"]).len != 0:
     echo "dnf5 is installed"
-    return
+    return ok()
   echo "Ensuring dnf5"
   echo "dnf5 is not installed; installing right now…"
   let rc = execCmd("dnf4 in -y dnf5")
@@ -75,6 +87,8 @@ proc end_proc*(process: Process, startTime: DateTime, action: string, errAction:
   if rc != 0:
     echo "Error: cannot " & errAction
     return err fmt"Fail to {errAction} ({rc=})"
+  echo "end_proc finished!"
+  ok[void]()
 
 proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
   echo "reboot_apply_offline()"
@@ -86,10 +100,3 @@ proc reboot_apply_offline*(hub: ref Hub): Result[void, string] =
   hub.toMain.send UpdateState.init("Reboot command finished. If your computer isn't rebooting, this is a bug.\nApp will force-quit in 10 seconds.")
   sleep 10000
   quit(0)
-
-const releasever* {.intdefine.}: int = 0
-
-when releasever == 0:
-  import std/macros
-  macro x = error "Compiling this requires --define:releasever=..."
-  x()

@@ -4,6 +4,7 @@ import owlkettle
 import owlkettle/adw
 import ../[app, hub]
 import ../backend/[add, pkgs]
+import zError
 import std/[strutils, strformat]
 
 viewable AddDownloadPage:
@@ -12,40 +13,29 @@ viewable AddDownloadPage:
   hub: ref Hub
   first: bool = true
   progress: float = 0.0
+  
+  hooks:
+    afterBuild:
+      proc redrawer(): bool =
+        if state.hub[].toMain.peek > 0:
+          discard redraw state
+        
+        const KEEP_LISTENER_ACTIVE = true
+        return KEEP_LISTENER_ACTIVE
+      discard addGlobalTimeout(200, redrawer)
 
 var thread: Thread[AddDownloadPageState]
 
-proc setupThread(state: AddDownloadPageState) =
-  assert state.hub[].toThrd.peek > 0
-  proc th(state: AddDownloadPageState) {.thread.} =
-    echo "Thread running"
-    while true:
-      if state.hub[].toThrd.peek == 0:
-        continue
-      let msg = state.hub[].toThrd.recv
-      let edition = match msg:
-      of AddDE as de: de
-      of Reboot:
-        let res = reboot_apply_offline state.hub
-        if res.isErr:
-          state.hub.toMain.send DnfError.init res.error
-        continue
-      else:
-        echo "BUG: expected AddDE!!!"
-        echo "BUG: found " & $msg
-        return
-      let res = add_de_offline(state.hub, edition)
-      if res.isErr:
-        state.hub.toMain.send DnfError.init res.error
-  createThread(thread, th, state)
 
+generateSetupThread AddDownloadPageState: add_de_offline
 
 method view(state: AddDownloadPageState): Widget =
   if state.first:
+    state.first = false
     new state.hub
     open state.hub[].toMain
     open state.hub[].toThrd
-    state.hub[].toThrd.send AddDE.init state.rootapp.cfgs["add-de"]
+    state.hub[].toThrd.send SendDE.init state.rootapp.cfgs["add-de"]
     setupThread(state)
   while state.hub[].toMain.peek > 0:
     let msg = state.hub[].toMain.recv
@@ -55,6 +45,7 @@ method view(state: AddDownloadPageState): Widget =
     of DnfError as err:
       state.rootapp.cfgs["error"] = err
       state.rootapp.page = "zError"
+      return gui: ErrorPage(rootapp = state.rootapp)
     of Progress as prog:
       state.progress = prog
     of DownloadFinish:
@@ -82,6 +73,8 @@ method view(state: AddDownloadPageState): Widget =
       description = "This will take a while."
       Box(orient = OrientY):
         Label(text = state.text)
-        ProgressBar(fraction = state.progress)
+        ProgressBar(fraction = state.progress):
+          if state.progress == 1:
+            style = [StyleClass("progress-finish")]
 
 export AddDownloadPage

@@ -17,13 +17,13 @@ method view(state: ChangePageState): Widget = gui:
       Box(orient = OrientX, margin = 12, spacing = 8):
         FlowBox(margin = 12, rowSpacing = 8, columnSpacing = 8):
           columns = 1..2
-          for (name, pkg) in pkgs.editions.pairs:
+          for (name, pkg) in pkgs.identities.pairs:
             Button(text = name):
               proc clicked = state.rootapp.cfgs["change-edition"] = name
               if state.rootapp.cfgs.getOrDefault("change-edition") == name:
                 style = [ButtonSuggested]
               else: style = []
-              if installed_desktops.contains pkg:
+              if state.rootapp.installed_identities.contains pkg:
                 sensitive = false
                 tooltip = "This is your current edition"
     Box() {.expand: true.}

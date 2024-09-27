@@ -3,39 +3,23 @@ import fungus
 import owlkettle
 import owlkettle/adw
 import ../[app, hub]
-import ../backend/delete
+import ../backend/[pkgs, delete]
 
 viewable DeleteRebootPage:
   rootapp: AppState
   text: string = "Making sure dnf5 exists..."
   hub: ref Hub
   first: bool = true
-  th: ref Thread[ref Hub]
 
-
-proc setupThread(hub: ref Hub): Thread[ref Hub] =
-  assert hub[].toThrd.peek > 0
-  proc th(hub: ref Hub) {.thread, nimcall.} =
-    let msg = hub[].toThrd.recv
-    let de = match msg:
-    of DeleteRebootDE as inner_de: inner_de
-    else:
-      echo "BUG: expected DeleteRebootDE!!!"
-      echo "BUG: found " & $msg
-      return
-    let res = remove_de_offline(hub, de)
-    if res.isErr:
-      hub.toMain.send DnfError.init res.error
-  createThread(result, th, hub)
-
+generateSetupThread DeleteRebootPageState: remove_de_offline
 
 method view(state: DeleteRebootPageState): Widget =
   if state.first:
     new state.hub
     open state.hub[].toMain
     open state.hub[].toThrd
-    state.hub[].toThrd.send DeleteRebootDE.init state.rootapp.cfgs["rm-de"]
-    state.th[] = setupThread(state.hub)
+    state.hub[].toThrd.send SendDE.init state.rootapp.cfgs["rm-de"]
+    setupThread(state)
   while state.hub[].toMain.peek > 0:
     let msg = state.hub[].toMain.recv
     match msg:

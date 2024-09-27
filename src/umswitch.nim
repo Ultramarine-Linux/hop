@@ -1,17 +1,23 @@
+import std/[os, osproc, sequtils]
 import owlkettle, owlkettle/adw
 import app
 import pages/[action, add, addDownload, delete, deleteReboot, change, changeApply, zNotFound, zError]
+import backend/pkgs
 
 const
-  logfilepath: string = "/tmp/umswitch.log"
-  debug = 1
+  # logfilepath: string = "/tmp/umswitch.log"
+  usesudo {.intdefine.} = 0
 let
-  stylesheets: array[1, StyleSheet] = [loadStylesheet("src/style.css")]
+  stylesheets: array[1, StyleSheet] = [newStyleSheet("""
+    .progress-finish.progressbar {
+      background-color: green;
+    }
+""")]
 
 method view(app: AppState): Widget =
   result = gui:
     AdwWindow:
-      defaultSize = (800, 600)
+      defaultSize = (1000, 800)
       Box(orient = OrientY):
         AdwHeaderBar {.expand: false.}:
           style = HeaderBarFlat
@@ -28,20 +34,23 @@ method view(app: AppState): Widget =
         else: NotFoundPage(rootapp = app)
 
 proc main =
-  logfilepath.writeFile "" # creates the logfile
-  let logfile = open(logfilepath, fmWrite)
-  defer: logfile.close()
-  adw.brew(gui App(), stylesheets=stylesheets)
+  # logfilepath.writeFile "" # creates the logfile
+  # let logfile = open(logfilepath, fmWrite)
+  # defer: logfile.close()
+  adw.brew(gui App(
+    installed_desktops=package_installed(editions.values.toSeq),
+    installed_identities=package_installed(identities.values.toSeq),
+  ), stylesheets=stylesheets)
 
-when isMainModule and debug == 0:
+when isMainModule:
   if os.isAdmin():
     main()
     quit(0)
-  # run umswitch as root via pkexec
-  discard findExe("xhost").startProcess(args=["si:localuser:root"], options={poParentStreams}).waitForExit
-  let x = findExe("pkexec").startProcess(args="umswitch"&commandLineParams(), options={poParentStreams}).waitForExit
-  discard findExe("xhost").startProcess(args=["-si:localuser:root"], options={poParentStreams}).waitForExit
+  when usesudo != 0:
+    let x = findExe("sudo").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
+  else:
+    # run umswitch as root via pkexec
+    discard findExe("xhost").startProcess(args=["si:localuser:root", "+localhost"], options={poParentStreams}).waitForExit
+    let x = findExe("pkexec").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
+    discard findExe("xhost").startProcess(args=["-si:localuser:root", "-localhost"], options={poParentStreams}).waitForExit
   quit x
-when isMainModule and debug == 1:
-  main()
-  quit(0)

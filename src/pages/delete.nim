@@ -20,7 +20,7 @@ method view(state: DeletePageState): Widget = gui:
         columns = 1..2
         for (name, pkg) in pkgs.editions.pairs:
           Button(text = name):
-            if not installed_desktops.contains pkg:
+            if not state.rootapp.installed_desktops.contains pkg:
               sensitive = false
               tooltip = installed_tooltip_msg
             proc clicked = state.rootapp.cfgs["rm-de"] = name

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Ultramarine Hop
+Comment=Switch between editions and desktop environments
+Exec=/usr/bin/umswitch
+Icon=ultramarine
+Terminal=false
+StartupNotify=false
+Categories=Application;
