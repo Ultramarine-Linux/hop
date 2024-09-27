@@ -32,7 +32,7 @@ method view(state: DeletePageState): Widget = gui:
       Box() {.expand: true.}
       Button(text = "Confirm") {.expand: false, hAlign: AlignEnd.}:
         sensitive = false
-        if state.rootapp.cfgs.contains "add-de":
+        if state.rootapp.cfgs.contains "rm-de":
           style = [ButtonSuggested]
           sensitive = true
           proc clicked =

@@ -11,10 +11,24 @@ viewable DeleteRebootPage:
   hub: ref Hub
   first: bool = true
 
+  hooks:
+    afterBuild:
+      proc redrawer(): bool =
+        if state.hub[].toMain.peek > 0:
+          discard redraw state
+        
+        const KEEP_LISTENER_ACTIVE = true
+        return KEEP_LISTENER_ACTIVE
+      discard addGlobalTimeout(200, redrawer)
+
+var thread: Thread[DeleteRebootPageState]
+
+
 generateSetupThread DeleteRebootPageState: remove_de_offline
 
 method view(state: DeleteRebootPageState): Widget =
   if state.first:
+    state.first = false
     new state.hub
     open state.hub[].toMain
     open state.hub[].toThrd
@@ -36,7 +50,10 @@ method view(state: DeleteRebootPageState): Widget =
       title = "Erasing " & state.rootapp.cfgs["rm-de"]
       description = "The system reboot will happen shortly..."
       Box(orient = OrientX):
-        Spinner(spinning = true)
-        Label(text = state.text)
+        Box() {.expand: true.}
+        Spinner(spinning = true) {.expand: false.}:
+          size_request = (25, 25)
+        Label(text = state.text, margin = 5) {.expand: false.}
+        Box() {.expand: true.}
 
 export DeleteRebootPage
