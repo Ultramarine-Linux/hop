@@ -10,23 +10,15 @@ let de_to_pkgs_to_change*: Table[string, string] = {
   "XFCE": "ultramarine-release-identity-xfce",
 }.toTable
 
-proc detect_swap_from*(): Result[string, string] =
-  let res = strip execProcess("rpm -qa 'ultramarine-release-identity-*'")
-  if res.len == 0:
-    return err "Cannot detect current release edition"
-  ok res
-
 proc swap*(hub: ref Hub, to: string): Result[void, string] {.thread.} =
   ?ensure_dnf5()
   echo "Swapping packages..."
   hub.toMain.send UpdateState.init "Swapping packages using dnf5..."
   echo fmt"┌──── BEGIN: Swap Editions ─────"
-  let old = ?detect_swap_from()
-  echo "├═ Old: "&old
   echo "├═ New: "&to
   stdout.write "┊ "
   let time = now()
-  let process = startProcess("/usr/bin/dnf5", args=["swap", "-y", old, to], options = {poStdErrToStdOut})
+  let process = startProcess("/usr/bin/dnf5", args=["swap", "-y", "ultramarine-release-identity", to], options = {poStdErrToStdOut})
   track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Swap Editions", "swap editions")
   hub.toMain.send MsgToMain DownloadFinish.init

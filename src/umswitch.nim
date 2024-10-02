@@ -7,6 +7,8 @@ import backend/pkgs
 const
   # logfilepath: string = "/tmp/umswitch.log"
   usesudo {.intdefine.} = 0
+
+# FIXME: make progressbars green when fraction = 1.0
 let
   stylesheets: array[1, StyleSheet] = [newStyleSheet("""
     .progress-finish.progressbar {
