@@ -17,6 +17,7 @@ nimble
 
 Install `nim` (e.g. from [Terra](https://terra.fyralabs.com)), then:
 ```
-nim install.nims
+nim install.nims --define:releasever=40
 ```
-Make sure `nimble` is also installed.
+
+Replace `40` with the system's release version. Make sure `nimble` is also installed.
