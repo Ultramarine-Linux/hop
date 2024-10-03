@@ -1,5 +1,5 @@
 import results
-import std/[times, osproc, tables, strutils, strformat, options]
+import std/[times, osproc, tables, strformat, options]
 import pkgs
 import ../hub
 

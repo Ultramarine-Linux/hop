@@ -1,5 +1,5 @@
 import results
-import std/[os, osproc, strutils, strformat, sugar, tables, sequtils, streams, options, times]
+import std/[os, osproc, strutils, strformat, sugar, tables, streams, options, times]
 import ../hub
 
 const releasever* {.intdefine.}: int = 0
