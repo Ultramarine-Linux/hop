@@ -88,7 +88,7 @@ proc end_proc*(process: Process, startTime: DateTime, action: string, errAction:
     echo "Error: cannot " & errAction
     return err fmt"Fail to {errAction} ({rc=})"
   echo "end_proc finished!"
-  ok[void]()
+  ok()
 
 proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
   echo "reboot_apply_offline()"
