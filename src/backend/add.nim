@@ -25,4 +25,4 @@ proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} 
   track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Downloading Packages", "arrange offline DE install")
   hub.toMain.send MsgToMain DownloadFinish.init
-  ok[void]()
+  ok()

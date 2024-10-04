@@ -25,4 +25,4 @@ proc remove_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread
   track_dnf5_download_progress(process, none(ref Hub))
   ?end_proc(process, time, "Remove DE Offline", "arrange offline DE remove")
   ?reboot_apply_offline hub
-  ok[void]()
+  ok()
