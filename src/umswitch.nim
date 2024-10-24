@@ -16,24 +16,23 @@ let
     }
 """)]
 
-method view(app: AppState): Widget =
-  result = gui:
-    AdwWindow:
-      defaultSize = (1000, 800)
-      Box(orient = OrientY):
-        AdwHeaderBar {.expand: false.}:
-          style = HeaderBarFlat
+method view(app: AppState): Widget = gui:
+  AdwWindow:
+    defaultSize = (1000, 800)
+    Box(orient = OrientY):
+      AdwHeaderBar {.expand: false.}:
+        style = HeaderBarFlat
 
-        case app.page
-        of "action": ActionPage(rootapp = app)
-        of "add": AddPage(rootapp = app)
-        of "addDownload": AddDownloadPage(rootapp = app)
-        of "change": ChangePage(rootapp = app)
-        of "changeApply": ChangeApplyPage(rootapp = app)
-        of "delete": DeletePage(rootapp = app)
-        of "deleteReboot": DeleteRebootPage(rootapp = app)
-        of "zError": ErrorPage(rootapp = app)
-        else: NotFoundPage(rootapp = app)
+      case app.page
+      of "action": ActionPage(rootapp = app)
+      of "add": AddPage(rootapp = app)
+      of "addDownload": AddDownloadPage(rootapp = app)
+      of "change": ChangePage(rootapp = app)
+      of "changeApply": ChangeApplyPage(rootapp = app)
+      of "delete": DeletePage(rootapp = app)
+      of "deleteReboot": DeleteRebootPage(rootapp = app)
+      of "zError": ErrorPage(rootapp = app)
+      else: NotFoundPage(rootapp = app)
 
 proc main =
   # logfilepath.writeFile "" # creates the logfile
@@ -49,10 +48,9 @@ when isMainModule:
     main()
     quit(0)
   when usesudo != 0:
-    let x = findExe("sudo").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
-  else:
-    # run umswitch as root via pkexec
-    discard findExe("xhost").startProcess(args=["si:localuser:root", "+localhost"], options={poParentStreams}).waitForExit
-    let x = findExe("pkexec").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
-    discard findExe("xhost").startProcess(args=["-si:localuser:root", "-localhost"], options={poParentStreams}).waitForExit
-  quit x
+    quit findExe("sudo").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
+  # run umswitch as root via pkexec
+  discard findExe("xhost").startProcess(args=["si:localuser:root", "+localhost"], options={poParentStreams}).waitForExit
+  let rc = findExe("pkexec").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
+  discard findExe("xhost").startProcess(args=["-si:localuser:root", "-localhost"], options={poParentStreams}).waitForExit
+  quit rc
