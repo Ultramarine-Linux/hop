@@ -60,7 +60,7 @@ method view(state: AddDownloadPageState): Widget =
             Click 'Reboot' to reboot instantly.
           """
           DialogButton {.addButton.}:
-            text = "Continue"
+            text = "Reboot"
             res = DialogAccept
             style = [ButtonDestructive]
       state.hub[].toThrd.send MsgToThrd Reboot.init
