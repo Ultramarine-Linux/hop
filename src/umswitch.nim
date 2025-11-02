@@ -1,4 +1,4 @@
-import std/[os, osproc, sequtils]
+import std/[os, osproc, sequtils, envvars, sugar]
 import owlkettle, owlkettle/adw
 import app
 import pages/[action, add, addDownload, delete, deleteReboot, change, changeApply, zNotFound, zError]
@@ -51,6 +51,9 @@ when isMainModule:
     quit findExe("sudo").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
   # run umswitch as root via pkexec
   discard findExe("xhost").startProcess(args=["si:localuser:root", "+localhost"], options={poParentStreams}).waitForExit
-  let rc = findExe("pkexec").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
+  let envs = collect:
+    for k, v in envPairs():
+      k&"="&v
+  let rc = findExe("pkexec").startProcess(args = @["env"]&envs&getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
   discard findExe("xhost").startProcess(args=["-si:localuser:root", "-localhost"], options={poParentStreams}).waitForExit
   quit rc
