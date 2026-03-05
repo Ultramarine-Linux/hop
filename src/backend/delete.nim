@@ -3,11 +3,12 @@ import std/[osproc, strutils, strformat, times, tables, options]
 import pkgs
 import ../hub
 
+# assume the environment is installed via dnf5
 const de_to_pkgs_to_rm: Table[string, seq[string]] = {
-  "Budgie": @["ultramarine-release-flagship"],
-  "GNOME": @["ultramarine-release-gnome"],
-  "KDE Plasma": @[if releasever < 41: "ultramarine-release-kde" else: "ultramarine-release-plasma"],
-  "XFCE": @["ultramarine-release-xfce"],
+  "Budgie": @[if releasever < 43: "@ultramarine-flagship-product" else: "@ultramarine-budgie-product-environment"],
+  "GNOME": @["@ultramarine-gnome-product-environment"],
+  "KDE Plasma": @[if releasever < 41: "@ultramarine-kde-product" else: "@ultramarine-plasma-product-environment"],
+  "XFCE": @["@ultramarine-xfce-product-environment"],
 }.toTable()
 
 proc remove_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} =

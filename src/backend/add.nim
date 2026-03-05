@@ -4,10 +4,10 @@ import pkgs
 import ../hub
 
 const de_to_pkgs_to_add: Table[string, seq[string]] = {
-  "Budgie": @[if releasever < 43: "@ultramarine-flagship-product" else: "@ultramarine-budgie-product", "@budgie-desktop"]
-  "GNOME": @["@ultramarine-gnome-product", "@ultramarine-gnome-desktop"],
-  "KDE Plasma": @[if releasever < 41: "@ultramarine-kde-product" else: "@ultramarine-plasma-product", "@kde-desktop"],
-  "XFCE": @["@ultramarine-xfce-product", "xfce-desktop"],
+  "Budgie": @[if releasever < 43: "@ultramarine-flagship-product" else: "@ultramarine-budgie-product-environment"],
+  "GNOME": @["@ultramarine-gnome-product-environment"],
+  "KDE Plasma": @[if releasever < 41: "@ultramarine-kde-product" else: "@ultramarine-plasma-product-environment"],
+  "XFCE": @["@ultramarine-xfce-product-environment"],
 }.toTable()
 
 proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} =

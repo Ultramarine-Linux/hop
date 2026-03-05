@@ -45,6 +45,7 @@ method view(state: AddDownloadPageState): Widget =
     of DnfError as err:
       state.rootapp.cfgs["error"] = err
       state.rootapp.page = "zError"
+      discard state.rootapp.redraw
       return gui: ErrorPage(rootapp = state.rootapp)
     of Progress as prog:
       state.progress = prog
