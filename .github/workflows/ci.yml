@@ -55,18 +55,17 @@ jobs:
 
       - name: Prepare build artifact
         run: |
-          candidates=()
-          while IFS= read -r -d '' file; do
-            candidates+=("$file")
-          done < <(find . "$HOME/.nimble/bin" -type f -name umswitch -print0 2>/dev/null)
-
-          if [[ "${#candidates[@]}" -eq 0 ]]; then
-            echo "umswitch binary was not produced. Build outputs:" >&2
-            find . "$HOME/.nimble/bin" -maxdepth 4 -type f -print 2>/dev/null | sort >&2
-            exit 1
+          if [[ ! -x ./umswitch ]]; then
+            candidate=$(find . "$HOME/.nimble/bin" \
+              -type f -name umswitch -not -path './umswitch' \
+              -print -quit 2>/dev/null || true)
+            if [[ -z "$candidate" ]]; then
+              echo "umswitch binary was not produced. Build outputs:" >&2
+              find . "$HOME/.nimble/bin" -maxdepth 4 -type f -print 2>/dev/null | sort >&2
+              exit 1
+            fi
+            cp "$candidate" ./umswitch
           fi
-
-          cp "${candidates[0]}" ./umswitch
           test -x ./umswitch
           file ./umswitch
 
