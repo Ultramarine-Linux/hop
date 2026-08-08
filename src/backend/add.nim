@@ -10,7 +10,8 @@ const de_to_pkgs_to_add: Table[string, seq[string]] = {
   "XFCE": @["@ultramarine-xfce-product-environment"],
 }.toTable()
 
-proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} =
+proc add_de_offline*(hub: ref Hub, de: string): Result[void,
+    string] {.thread.} =
   ?ensure_dnf5()
   echo "Downloading packages..."
   hub.toMain.send UpdateState.init "Downloading packages..."
@@ -21,7 +22,7 @@ proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} 
   let time = now()
   var args = @["in", "-y", "--offline"]
   args &= pkgs
-  let process = startProcess("/usr/bin/dnf5", args=args, options = {poStdErrToStdOut})
+  let process = startProcess("/usr/bin/dnf5", args = args, options = {poStdErrToStdOut})
   track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Downloading Packages", "arrange offline DE install")
   hub.toMain.send MsgToMain DownloadFinish.init

@@ -18,7 +18,8 @@ proc swap*(hub: ref Hub, to: string): Result[void, string] {.thread.} =
   echo "├═ New: "&to
   stdout.write "┊ "
   let time = now()
-  let process = startProcess("/usr/bin/dnf5", args=["swap", "-y", "ultramarine-release-identity", to], options = {poStdErrToStdOut})
+  let process = startProcess("/usr/bin/dnf5", args = ["swap", "-y",
+      "ultramarine-release-identity", to], options = {poStdErrToStdOut})
   track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Swap Editions", "swap editions")
   hub.toMain.send MsgToMain DownloadFinish.init

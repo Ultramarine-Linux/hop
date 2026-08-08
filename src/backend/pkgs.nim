@@ -45,7 +45,8 @@ proc ensure_dnf5*(): Result[void, string] =
     return err fmt"Fail to install dnf5 ({rc=})"
   ok()
 
-proc track_dnf5_download_progress*(process: Process, hub: Option[ref Hub]) {.thread.} =
+proc track_dnf5_download_progress*(process: Process, hub: Option[
+    ref Hub]) {.thread.} =
   let outs = process.outputStream
   var line = ""
   var progress = 0.0
@@ -76,7 +77,8 @@ proc track_dnf5_download_progress*(process: Process, hub: Option[ref Hub]) {.thr
                 hub.get.toMain.send Progress.init progress
             except: discard
 
-proc end_proc*(process: Process, startTime: DateTime, action: string, errAction: string = ""): Result[void, string] {.thread.} =
+proc end_proc*(process: Process, startTime: DateTime, action: string,
+    errAction: string = ""): Result[void, string] {.thread.} =
   defer: process.close()
   let errAction = if errAction == "": action else: errAction
   let rc = process.peekExitCode
@@ -90,7 +92,7 @@ proc end_proc*(process: Process, startTime: DateTime, action: string, errAction:
   echo "end_proc finished!"
   ok()
 
-proc reboot_apply_offline*(hub: ref Hub): Result[void, string] = 
+proc reboot_apply_offline*(hub: ref Hub): Result[void, string] =
   echo "reboot_apply_offline()"
   hub.toMain.send UpdateState.init("Rebooting...")
   let rc = execCmd("dnf5 offline reboot -y")
