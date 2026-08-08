@@ -53,6 +53,12 @@ jobs:
       - name: Build
         run: nimble build --define:releasever=${RELEASEVER}
 
+      - name: Prepare build artifact
+        run: |
+          find . -mindepth 2 -type f -name umswitch -not -path './.git/*' -exec cp {} ./umswitch \;
+          test -x ./umswitch
+          file ./umswitch
+
       - name: Upload binary
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -74,5 +80,16 @@ jobs:
         with:
           nim-version: "2.2.10"
 
+      - name: Install test dependencies
+        run: |
+          mkdir -p /tmp/hop-test-deps
+          printf 'version = "0.0.1"\nauthor = "CI"\ndescription = "CI test dependencies"\nlicense = "MIT"\nrequires "fungus == 0.1.19"\n' > /tmp/hop-test-deps/testdeps.nimble
+          cd /tmp/hop-test-deps
+          nimble install -y
+
       - name: Compile test program
-        run: nim c --hints:off test.nim
+        run: |
+          nim c --hints:off \
+            --path:$HOME/.nimble/pkgs2/fungus-* \
+            --path:$HOME/.nimble/pkgs2/micros-* \
+            test.nim
