@@ -51,11 +51,22 @@ jobs:
           nim-version: "2.2.10"
 
       - name: Build
-        run: nimble build --define:releasever=${RELEASEVER}
+        run: nimble build --define:releasever=${RELEASEVER} --verbose
 
       - name: Prepare build artifact
         run: |
-          find . -mindepth 2 -type f -name umswitch -not -path './.git/*' -exec cp {} ./umswitch \;
+          candidates=()
+          while IFS= read -r -d '' file; do
+            candidates+=("$file")
+          done < <(find . "$HOME/.nimble/bin" -type f -name umswitch -print0 2>/dev/null)
+
+          if [[ "${#candidates[@]}" -eq 0 ]]; then
+            echo "umswitch binary was not produced. Build outputs:" >&2
+            find . "$HOME/.nimble/bin" -maxdepth 4 -type f -print 2>/dev/null | sort >&2
+            exit 1
+          fi
+
+          cp "${candidates[0]}" ./umswitch
           test -x ./umswitch
           file ./umswitch
 
