@@ -11,14 +11,14 @@ when releasever == 0:
 
 
 const editions*: Table[string, string] = {
-  "Budgie": "ultramarine-release-flagship",
+  "Budgie": if releasever < 43: "ultramarine-release-flagship" else: "ultramarine-release-budgie",
   "GNOME": "ultramarine-release-gnome",
   "KDE Plasma": if releasever < 41: "ultramarine-release-kde" else: "ultramarine-release-plasma",
   "XFCE": "ultramarine-release-xfce",
 }.toTable
 
 const identities*: Table[string, string] = {
-  "Budgie": "ultramarine-release-identity-flagship",
+  "Budgie": if releasever < 43: "ultramarine-release-identity-flagship" else: "ultramarine-release-identity-budgie",
   "GNOME": "ultramarine-release-identity-gnome",
   "KDE Plasma": if releasever < 41: "ultramarine-release-identity-kde" else: "ultramarine-release-identity-plasma",
   "XFCE": "ultramarine-release-identity-xfce",
