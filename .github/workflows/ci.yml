@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  RELEASEVER: "44"
+
+jobs:
+  format:
+    name: Check Nim formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      - name: Install Nim
+        uses: jiro4989/setup-nim-action@cb1fc1270b117457dd0d9f610ec981fad3369cec # v2.3.0
+        with:
+          nim-version: "2.2.10"
+
+      - name: Check formatting
+        run: ./scripts/check-format.sh
+
+  build:
+    name: Build application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libadwaita-1-dev \
+            libgtk-4-dev \
+            pkg-config
+
+      - name: Install Nim
+        uses: jiro4989/setup-nim-action@cb1fc1270b117457dd0d9f610ec981fad3369cec # v2.3.0
+        with:
+          nim-version: "2.2.10"
+
+      - name: Build
+        run: nimble build --define:releasever=${RELEASEVER} --verbose
+
+      - name: Prepare build artifact
+        run: |
+          if [[ ! -x ./umswitch ]]; then
+            candidate=$(find . "$HOME/.nimble/bin" \
+              -type f -name umswitch -not -path './umswitch' \
+              -print -quit 2>/dev/null || true)
+            if [[ -z "$candidate" ]]; then
+              echo "umswitch binary was not produced. Build outputs:" >&2
+              find . "$HOME/.nimble/bin" -maxdepth 4 -type f -print 2>/dev/null | sort >&2
+              exit 1
+            fi
+            cp "$candidate" ./umswitch
+          fi
+          test -x ./umswitch
+          file ./umswitch
+
+      - name: Upload binary
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: umswitch
+          path: umswitch
+          if-no-files-found: error
+
+  test:
+    name: Compile tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      - name: Install Nim
+        uses: jiro4989/setup-nim-action@cb1fc1270b117457dd0d9f610ec981fad3369cec # v2.3.0
+        with:
+          nim-version: "2.2.10"
+
+      - name: Install test dependencies
+        run: |
+          mkdir -p /tmp/hop-test-deps
+          printf 'version = "0.0.1"\nauthor = "CI"\ndescription = "CI test dependencies"\nlicense = "MIT"\nrequires "fungus == 0.1.19"\n' > /tmp/hop-test-deps/testdeps.nimble
+          cd /tmp/hop-test-deps
+          nimble install -y
+
+      - name: Compile test program
+        run: |
+          nim c --hints:off \
+            --path:$HOME/.nimble/pkgs2/fungus-* \
+            --path:$HOME/.nimble/pkgs2/micros-* \
+            test.nim

@@ -1,7 +1,8 @@
 import std/[os, osproc, sequtils, envvars, sugar]
 import owlkettle, owlkettle/adw
 import app
-import pages/[action, add, addDownload, delete, deleteReboot, change, changeApply, zNotFound, zError]
+import pages/[action, add, addDownload, delete, deleteReboot, change,
+    changeApply, zNotFound, zError]
 import backend/pkgs
 
 const
@@ -39,21 +40,25 @@ proc main =
   # let logfile = open(logfilepath, fmWrite)
   # defer: logfile.close()
   adw.brew(gui App(
-    installed_desktops=package_installed(editions.values.toSeq),
-    installed_identities=package_installed(identities.values.toSeq),
-  ), stylesheets=stylesheets)
+    installed_desktops = package_installed(editions.values.toSeq),
+    installed_identities = package_installed(identities.values.toSeq),
+  ), stylesheets = stylesheets)
 
 when isMainModule:
   if os.isAdmin():
     main()
     quit(0)
   when usesudo != 0:
-    quit findExe("sudo").startProcess(args=getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
+    quit findExe("sudo").startProcess(args = getAppFilename()&commandLineParams(
+      ), options = {poParentStreams}).waitForExit
   # run umswitch as root via pkexec
-  discard findExe("xhost").startProcess(args=["si:localuser:root", "+localhost"], options={poParentStreams}).waitForExit
+  discard findExe("xhost").startProcess(args = ["si:localuser:root",
+      "+localhost"], options = {poParentStreams}).waitForExit
   let envs = collect:
     for k, v in envPairs():
       k&"="&v
-  let rc = findExe("pkexec").startProcess(args = @["env"]&envs&getAppFilename()&commandLineParams(), options={poParentStreams}).waitForExit
-  discard findExe("xhost").startProcess(args=["-si:localuser:root", "-localhost"], options={poParentStreams}).waitForExit
+  let rc = findExe("pkexec").startProcess(args = @["env"]&envs&getAppFilename(
+    )&commandLineParams(), options = {poParentStreams}).waitForExit
+  discard findExe("xhost").startProcess(args = ["-si:localuser:root",
+      "-localhost"], options = {poParentStreams}).waitForExit
   quit rc

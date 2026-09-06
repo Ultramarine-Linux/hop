@@ -18,7 +18,7 @@ viewable ChangeApplyPage:
       proc redrawer(): bool =
         if state.hub[].toMain.peek > 0:
           discard redraw state
-        
+
         const KEEP_LISTENER_ACTIVE = true
         return KEEP_LISTENER_ACTIVE
       discard addGlobalTimeout(200, redrawer)

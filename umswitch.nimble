@@ -9,12 +9,16 @@ bin           = @["umswitch"]
 
 
 import nimsutils/src/nimsutils
-import std/[syncio, strutils]
+import std/[envvars, syncio, strutils]
 
 proc get_releasever(): int =
+  let requested = getEnv("RELEASEVER")
+  if requested != "":
+    return requested.parseInt
   for l in readFile("/etc/os-release").splitLines:
     if l.starts_with("VERSION_ID="):
-      return l[11..12].parseInt
+      let version = l["VERSION_ID=".len .. ^1].strip(chars = {'"'})
+      return version.split('.')[0].parseInt
   error("cannot find VERSION_ID in /etc/os-release")
   quit 1
 
