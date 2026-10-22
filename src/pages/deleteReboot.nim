@@ -4,6 +4,7 @@ import owlkettle
 import owlkettle/adw
 import ../[app, hub]
 import ../backend/[pkgs, delete]
+import zError
 
 viewable DeleteRebootPage:
   rootapp: AppState
@@ -42,6 +43,8 @@ method view(state: DeleteRebootPageState): Widget =
     of DnfError as err:
       state.rootapp.cfgs["error"] = err
       state.rootapp.page = "zError"
+      discard state.rootapp.redraw
+      return gui: ErrorPage(rootapp = state.rootapp)
     else:
       echo "BUG: unexpected message: " & $msg
   gui:

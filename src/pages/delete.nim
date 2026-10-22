@@ -2,7 +2,7 @@ import std/[tables, strutils, strformat]
 import owlkettle
 import owlkettle/adw
 import ../app
-import ../backend/pkgs
+import ../backend/[pkgs, delete]
 
 const installed_tooltip_msg: string = "This desktop environment is not installed."
 
@@ -20,9 +20,13 @@ method view(state: DeletePageState): Widget = gui:
         columns = 1..2
         for (name, pkg) in pkgs.editions.pairs:
           Button(text = name):
+            let blocker = removal_blocker(name, state.rootapp.installed_identities)
             if not state.rootapp.installed_desktops.contains pkg:
               sensitive = false
               tooltip = installed_tooltip_msg
+            elif blocker != "":
+              sensitive = false
+              tooltip = blocker
             proc clicked = state.rootapp.cfgs["rm-de"] = name
             if state.rootapp.cfgs.getOrDefault("rm-de") == name:
               style = [ButtonSuggested]
