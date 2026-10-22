@@ -21,8 +21,11 @@ proc add_de_offline*(hub: ref Hub, de: string): Result[void, string] {.thread.} 
   let time = now()
   var args = @["in", "-y", "--offline"]
   args &= pkgs
-  let process = startProcess("/usr/bin/dnf5", args=args, options = {poStdErrToStdOut})
-  track_dnf5_download_progress(process, some(hub))
+  let since = getTime()
+  let process = start_dnf5(args)
+  let output = track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Downloading Packages", "arrange offline DE install")
+  ?ensure_dnf5_did_something(output, "install " & de)
+  ?ensure_offline_transaction(pkgs, since)
   hub.toMain.send MsgToMain DownloadFinish.init
   ok()

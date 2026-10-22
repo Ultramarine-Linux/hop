@@ -18,8 +18,11 @@ proc swap*(hub: ref Hub, to: string): Result[void, string] {.thread.} =
   echo "├═ New: "&to
   stdout.write "┊ "
   let time = now()
-  let process = startProcess("/usr/bin/dnf5", args=["swap", "-y", "ultramarine-release-identity", to], options = {poStdErrToStdOut})
-  track_dnf5_download_progress(process, some(hub))
+  let process = start_dnf5(["swap", "-y", "ultramarine-release-identity", to])
+  let output = track_dnf5_download_progress(process, some(hub))
   ?end_proc(process, time, "Swap Editions", "swap editions")
+  ?ensure_dnf5_did_something(output, "switch to " & to)
+  if package_installed([to]).len == 0:
+    return err fmt"dnf5 finished, but {to} is not installed."
   hub.toMain.send MsgToMain DownloadFinish.init
   ok()

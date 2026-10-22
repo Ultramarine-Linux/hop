@@ -22,9 +22,7 @@ template generateSetupThread*(State: untyped, f: untyped) =
     proc th(state: State) {.thread.} =
       echo "Thread running"
       while true:
-        if state.hub[].toThrd.peek == 0:
-          continue
-        let msg = state.hub.toThrd.recv
+        let msg = state.hub.toThrd.recv  # blocks; no busy-waiting
         let res = match msg:
         of SendDE as de: f(state.hub, de)
         of Reboot: reboot_apply_offline state.hub
